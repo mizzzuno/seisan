@@ -119,6 +119,7 @@ export default function App() {
       lodging: 0,
       sightseeing: 0,
       shopping: 0,
+      laundry: 0,
       other: 0,
     };
     activeExpenses.forEach((e) => {
