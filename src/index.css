@@ -1,0 +1,353 @@
+/* Nordic Minimalist Design System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+
+:root {
+  /* Color Palette */
+  --bg-primary: #F7F5F0;     /* Warm Nordic Stone/Off-white */
+  --bg-secondary: #FFFFFF;   /* Clean White */
+  --bg-tertiary: #EFECE6;    /* Sand / Soft Gray-Beige */
+  
+  --text-primary: #2B3A36;    /* Muted Forest Black */
+  --text-secondary: #5C6E6A;  /* Soft Sage Gray */
+  --text-tertiary: #8C9E9A;   /* Light Sage Gray */
+  
+  --color-sage: #7A9E87;      /* Primary Accent Sage Green */
+  --color-sage-light: #EEF4F0;/* Light Sage Tint */
+  --color-sage-dark: #5C7F68; /* Darker Sage */
+  
+  --color-sand: #D9CFC1;      /* Secondary Sand Brown */
+  --color-terracotta: #C87A6E;/* Crimson/Terracotta for warnings */
+  --color-terracotta-light: #FDF3F1;
+  --color-amber: #E29E4D;     /* Warm Amber for warnings */
+  --color-amber-light: #FEF8EF;
+  
+  --border-color: #ECE8E0;    /* Soft beige border */
+  --border-radius-sm: 8px;
+  --border-radius-md: 14px;
+  --border-radius-lg: 20px;
+  
+  --shadow-sm: 0 2px 6px rgba(43, 58, 54, 0.03);
+  --shadow-md: 0 6px 16px rgba(43, 58, 54, 0.05);
+  --shadow-lg: 0 12px 28px rgba(43, 58, 54, 0.08);
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  font-family: var(--font-family);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  
+  /* Prevent scroll bouncing and enable smooth scrolling */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+/* Base resets & layouts */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 480px; /* Mobile size restriction for desktop viewing */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  position: relative;
+  box-shadow: 0 0 32px rgba(43, 58, 54, 0.03);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    margin-bottom: -30px;
+    opacity: 0;
+  }
+  to {
+    margin-bottom: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-normal);
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-fast);
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-normal);
+}
+
+/* Form Styles */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 16px; /* Prevents auto-zoom on iOS */
+  padding: 12px 16px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235C6E6A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 40px !important;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-sage);
+  box-shadow: 0 0 0 3px var(--color-sage-light);
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Helper Utility Classes */
+.text-center { text-align: center; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+.muted { color: var(--text-secondary); }
+.small { font-size: 12px; }
+
+/* Dynamic progress/chart variables */
+.chart-pie-segment {
+  transition: stroke-dasharray var(--transition-normal);
+}
+
+/* Screen mode - hide print-only by default */
+.print-only {
+  display: none !important;
+}
+
+/* Print Layout for PDF generation */
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  #root {
+    max-width: 100% !important;
+    box-shadow: none !important;
+    background-color: #FFFFFF !important;
+    display: block !important;
+    min-height: auto !important;
+  }
+
+  /* Hide UI elements not meant for printing */
+  .no-print,
+  button,
+  nav,
+  .nav-bar,
+  .fab,
+  .modal-overlay,
+  .tab-buttons,
+  .back-btn,
+  .settings-btn,
+  .actions-row,
+  .icon-button {
+    display: none !important;
+  }
+
+  /* Show print-only during printing */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Expand hidden scroll areas or items */
+  .trip-detail-container,
+  .print-container {
+    display: block !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Force clean grid & table styling for print */
+  .print-report-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+  }
+
+  .print-report-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+  }
+
+  .print-report-meta {
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .print-summary-cards {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .print-card {
+    border: 1px solid #CCC !important;
+    border-radius: 4px !important;
+    padding: 12px !important;
+    background-color: #FFF !important;
+  }
+
+  .print-card-title {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .print-card-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+  }
+
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 16px !important;
+    font-size: 12px !important;
+  }
+
+  .print-table th, 
+  .print-table td {
+    border: 1px solid #DDD !important;
+    padding: 8px 10px !important;
+    text-align: left !important;
+  }
+
+  .print-table th {
+    background-color: #F5F5F5 !important;
+    font-weight: bold !important;
+    color: #000 !important;
+  }
+
+  .print-table tr:nth-child(even) {
+    background-color: #FAFAFA !important;
+  }
+
+  .print-chart-summary {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    margin-bottom: 24px !important;
+    border: 1px solid #DDD;
+    padding: 16px;
+    border-radius: 4px;
+  }
+
+  .print-chart-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    width: 45%;
+  }
+
+  .print-chart-color-box {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid #333;
+  }
+
+  /* Prevent page breaks inside transaction rows or cards */
+  .print-table tr,
+  .print-card {
+    page-break-inside: avoid;
+  }
+}
