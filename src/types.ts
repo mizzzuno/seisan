@@ -1,6 +1,13 @@
-export type CategoryType = 'food' | 'transport' | 'lodging' | 'sightseeing' | 'shopping' | 'other';
+export type CategoryType =
+  | "food"
+  | "transport"
+  | "lodging"
+  | "sightseeing"
+  | "shopping"
+  | "laundry"
+  | "other";
 
-export type PaymentMethodType = 'cash' | 'credit' | 'qr' | 'other';
+export type PaymentMethodType = "cash" | "credit" | "qr" | "other";
 
 export interface Trip {
   id: string;
@@ -38,17 +45,48 @@ export interface PaymentMethodInfo {
 }
 
 export const CATEGORIES: Record<CategoryType, CategoryInfo> = {
-  food: { key: 'food', label: '食費', color: '#8FBC8F', iconName: 'Utensils' }, // DarkSeaGreen
-  transport: { key: 'transport', label: '交通費', color: '#B0C4DE', iconName: 'Train' }, // LightSteelBlue
-  lodging: { key: 'lodging', label: '宿泊費', color: '#BC8F8F', iconName: 'Home' }, // RosyBrown
-  sightseeing: { key: 'sightseeing', label: '観光費', color: '#D2B48C', iconName: 'Compass' }, // Tan
-  shopping: { key: 'shopping', label: '買い物', color: '#D8BFD8', iconName: 'ShoppingBag' }, // Thistle
-  other: { key: 'other', label: 'その他', color: '#C0C0C0', iconName: 'MoreHorizontal' }, // Silver
+  food: { key: "food", label: "食費", color: "#8FBC8F", iconName: "Utensils" }, // DarkSeaGreen
+  transport: {
+    key: "transport",
+    label: "交通費",
+    color: "#B0C4DE",
+    iconName: "Train",
+  }, // LightSteelBlue
+  lodging: {
+    key: "lodging",
+    label: "宿泊費",
+    color: "#BC8F8F",
+    iconName: "Home",
+  }, // RosyBrown
+  sightseeing: {
+    key: "sightseeing",
+    label: "観光費",
+    color: "#D2B48C",
+    iconName: "Compass",
+  }, // Tan
+  shopping: {
+    key: "shopping",
+    label: "買い物",
+    color: "#D8BFD8",
+    iconName: "ShoppingBag",
+  }, // Thistle
+  laundry: {
+    key: "laundry",
+    label: "洗濯費",
+    color: "#87CEEB",
+    iconName: "WashingMachine",
+  }, // SkyBlue
+  other: {
+    key: "other",
+    label: "その他",
+    color: "#C0C0C0",
+    iconName: "MoreHorizontal",
+  }, // Silver
 };
 
 export const PAYMENT_METHODS: Record<PaymentMethodType, PaymentMethodInfo> = {
-  cash: { key: 'cash', label: '現金', color: '#8FBC8F' },
-  credit: { key: 'credit', label: 'クレジットカード', color: '#B0C4DE' },
-  qr: { key: 'qr', label: 'QR・電子マネー', color: '#D8BFD8' },
-  other: { key: 'other', label: 'その他', color: '#C0C0C0' },
+  cash: { key: "cash", label: "現金", color: "#8FBC8F" },
+  credit: { key: "credit", label: "クレジットカード", color: "#B0C4DE" },
+  qr: { key: "qr", label: "QR・電子マネー", color: "#D8BFD8" },
+  other: { key: "other", label: "その他", color: "#C0C0C0" },
 };
