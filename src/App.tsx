@@ -46,7 +46,6 @@ export default function App() {
   const [isBackupExportModalOpen, setIsBackupExportModalOpen] = useState(false);
   const [backupDataString, setBackupDataString] = useState("");
   const [importText, setImportText] = useState("");
-  const [showTextImport, setShowTextImport] = useState(false);
 
   // Calendar view states for Trip Modal Date Range picker
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
@@ -505,7 +504,6 @@ export default function App() {
         setExpenses(getExpenses());
         setIsSettingsOpen(false);
         setImportText("");
-        setShowTextImport(false);
       } else {
         alert("復元に失敗しました。ファイル形式を確認してください。");
       }
@@ -2602,6 +2600,9 @@ export default function App() {
                 style={{
                   borderTop: "1px solid var(--border-color)",
                   paddingTop: "14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "14px",
                 }}
               >
                 <h4
@@ -2609,97 +2610,86 @@ export default function App() {
                     fontSize: "13px",
                     fontWeight: 600,
                     color: "var(--text-secondary)",
-                    marginBottom: "8px",
+                    marginBottom: "2px",
                   }}
                 >
                   データの復元
                 </h4>
-                <label
-                  htmlFor="backup-file"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                    width: "100%",
-                    backgroundColor: "var(--bg-tertiary)",
-                    color: "var(--text-primary)",
-                    padding: "12px",
-                    borderRadius: "var(--border-radius-md)",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    transition: "background-color var(--transition-fast)",
-                  }}
-                >
-                  <Upload size={14} /> バックアップファイルを読み込む
-                </label>
-                <input
-                  type="file"
-                  id="backup-file"
-                  accept=".json"
-                  onChange={handleBackupImport}
-                  style={{ display: "none" }}
-                />
 
-                {/* Text import alternative */}
-                <div style={{ marginTop: "4px" }}>
-                  <button
-                    onClick={() => setShowTextImport(!showTextImport)}
+                {/* Method 1: File import */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500 }}>
+                    方法1：ファイルを読み込む
+                  </div>
+                  <label
+                    htmlFor="backup-file"
                     style={{
-                      background: "none",
-                      border: "none",
-                      color: "var(--color-sage)",
-                      fontSize: "11px",
-                      cursor: "pointer",
-                      padding: "4px 0",
-                      textDecoration: "underline",
                       display: "flex",
                       alignItems: "center",
-                      gap: "4px",
+                      justifyContent: "center",
+                      gap: "8px",
+                      width: "100%",
+                      backgroundColor: "var(--bg-tertiary)",
+                      color: "var(--text-primary)",
+                      padding: "10px",
+                      borderRadius: "var(--border-radius-md)",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      border: "1px solid var(--border-color)",
+                      transition: "background-color var(--transition-fast)",
                     }}
                   >
-                    ファイルを選択できない・エラーになる場合
-                  </button>
+                    <Upload size={14} /> バックアップファイル (.json) の選択
+                  </label>
+                  <input
+                    type="file"
+                    id="backup-file"
+                    accept=".json"
+                    onChange={handleBackupImport}
+                    style={{ display: "none" }}
+                  />
+                </div>
 
-                  {showTextImport && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px" }}>
-                      <textarea
-                        value={importText}
-                        onChange={(e) => setImportText(e.target.value)}
-                        placeholder="ここにコピーしたバックアップテキストを貼り付けてください"
-                        style={{
-                          width: "100%",
-                          height: "100px",
-                          backgroundColor: "var(--bg-primary)",
-                          color: "var(--text-primary)",
-                          border: "1px solid var(--border-color)",
-                          borderRadius: "var(--border-radius-md)",
-                          padding: "8px",
-                          fontSize: "12px",
-                          fontFamily: "monospace",
-                          resize: "vertical",
-                        }}
-                      />
-                      <button
-                        onClick={handleTextImport}
-                        disabled={!importText.trim()}
-                        style={{
-                          width: "100%",
-                          backgroundColor: importText.trim() ? "var(--color-sage)" : "var(--border-color)",
-                          color: importText.trim() ? "white" : "var(--text-secondary)",
-                          padding: "10px",
-                          borderRadius: "var(--border-radius-md)",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          cursor: importText.trim() ? "pointer" : "default",
-                          border: "none",
-                        }}
-                      >
-                        テキストから復元する
-                      </button>
-                    </div>
-                  )}
+                {/* Method 2: Text paste import */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 500 }}>
+                    方法2：テキストを貼り付けて復元（LINEや安心フィルターなど）
+                  </div>
+                  <textarea
+                    value={importText}
+                    onChange={(e) => setImportText(e.target.value)}
+                    placeholder="コピーしたバックアップ用の文字列（JSON）をここに貼り付けてください"
+                    style={{
+                      width: "100%",
+                      height: "80px",
+                      backgroundColor: "var(--bg-primary)",
+                      color: "var(--text-primary)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "var(--border-radius-md)",
+                      padding: "8px",
+                      fontSize: "11px",
+                      fontFamily: "monospace",
+                      resize: "vertical",
+                    }}
+                  />
+                  <button
+                    onClick={handleTextImport}
+                    disabled={!importText.trim()}
+                    style={{
+                      width: "100%",
+                      backgroundColor: importText.trim() ? "var(--color-sage)" : "var(--border-color)",
+                      color: importText.trim() ? "white" : "var(--text-secondary)",
+                      padding: "10px",
+                      borderRadius: "var(--border-radius-md)",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      cursor: importText.trim() ? "pointer" : "default",
+                      border: "none",
+                    }}
+                  >
+                    テキストから復元する
+                  </button>
                 </div>
               </div>
 
