@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronDown,
   AlertTriangle,
+  Copy,
 } from "lucide-react";
 import { CATEGORIES, PAYMENT_METHODS } from "./types";
 import type { Trip, Expense, CategoryType, PaymentMethodType } from "./types";
@@ -42,6 +43,10 @@ export default function App() {
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [isPrintWarningModalOpen, setIsPrintWarningModalOpen] = useState(false);
+  const [isBackupExportModalOpen, setIsBackupExportModalOpen] = useState(false);
+  const [backupDataString, setBackupDataString] = useState("");
+  const [importText, setImportText] = useState("");
+  const [showTextImport, setShowTextImport] = useState(false);
 
   // Calendar view states for Trip Modal Date Range picker
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
@@ -452,15 +457,20 @@ export default function App() {
   // Backup file export/import handler
   const handleBackupExport = () => {
     const dataStr = exportData();
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+    if (isWebView()) {
+      setBackupDataString(dataStr);
+      setIsBackupExportModalOpen(true);
+    } else {
+      const dataUri =
+        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
 
-    const exportFileDefaultName = `seisan_backup_${new Date().toISOString().split("T")[0]}.json`;
+      const exportFileDefaultName = `seisan_backup_${new Date().toISOString().split("T")[0]}.json`;
 
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
+      const linkElement = document.createElement("a");
+      linkElement.setAttribute("href", dataUri);
+      linkElement.setAttribute("download", exportFileDefaultName);
+      linkElement.click();
+    }
   };
 
   const handleBackupImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -483,6 +493,25 @@ export default function App() {
       }
     };
     fileReader.readAsText(file);
+  };
+
+  const handleTextImport = () => {
+    if (!importText.trim()) return;
+    try {
+      const success = importData(importText);
+      if (success) {
+        alert("データの復元が完了しました。");
+        setTrips(getTrips());
+        setExpenses(getExpenses());
+        setIsSettingsOpen(false);
+        setImportText("");
+        setShowTextImport(false);
+      } else {
+        alert("復元に失敗しました。ファイル形式を確認してください。");
+      }
+    } catch (e) {
+      alert("エラー: データ形式が正しくありません。");
+    }
   };
 
   const handleClearAll = () => {
@@ -2612,6 +2641,66 @@ export default function App() {
                   onChange={handleBackupImport}
                   style={{ display: "none" }}
                 />
+
+                {/* Text import alternative */}
+                <div style={{ marginTop: "4px" }}>
+                  <button
+                    onClick={() => setShowTextImport(!showTextImport)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "var(--color-sage)",
+                      fontSize: "11px",
+                      cursor: "pointer",
+                      padding: "4px 0",
+                      textDecoration: "underline",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    ファイルを選択できない・エラーになる場合
+                  </button>
+
+                  {showTextImport && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "8px" }}>
+                      <textarea
+                        value={importText}
+                        onChange={(e) => setImportText(e.target.value)}
+                        placeholder="ここにコピーしたバックアップテキストを貼り付けてください"
+                        style={{
+                          width: "100%",
+                          height: "100px",
+                          backgroundColor: "var(--bg-primary)",
+                          color: "var(--text-primary)",
+                          border: "1px solid var(--border-color)",
+                          borderRadius: "var(--border-radius-md)",
+                          padding: "8px",
+                          fontSize: "12px",
+                          fontFamily: "monospace",
+                          resize: "vertical",
+                        }}
+                      />
+                      <button
+                        onClick={handleTextImport}
+                        disabled={!importText.trim()}
+                        style={{
+                          width: "100%",
+                          backgroundColor: importText.trim() ? "var(--color-sage)" : "var(--border-color)",
+                          color: importText.trim() ? "white" : "var(--text-secondary)",
+                          padding: "10px",
+                          borderRadius: "var(--border-radius-md)",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          cursor: importText.trim() ? "pointer" : "default",
+                          border: "none",
+                        }}
+                      >
+                        テキストから復元する
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Clear data */}
@@ -2796,6 +2885,172 @@ export default function App() {
               </button>
               <button
                 onClick={() => setIsPrintWarningModalOpen(false)}
+                style={{
+                  flex: 1,
+                  backgroundColor: "var(--color-sage)",
+                  color: "white",
+                  padding: "12px",
+                  borderRadius: "var(--border-radius-md)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  border: "none",
+                }}
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== MODAL: BACKUP EXPORT (WEBVIEW WORKAROUND) ==================== */}
+      {isBackupExportModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(43, 58, 54, 0.4)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 110,
+            animation: "fadeIn 0.2s ease",
+            padding: "20px",
+          }}
+          onClick={() => {
+            setIsBackupExportModalOpen(false);
+            setBackupDataString("");
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "var(--bg-secondary)",
+              width: "100%",
+              maxWidth: "440px",
+              borderRadius: "var(--border-radius-lg)",
+              padding: "24px 20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
+              boxShadow: "var(--shadow-lg)",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              animation: "slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <AlertTriangle size={24} style={{ color: "var(--color-terracotta)" }} />
+                <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>
+                  ファイル保存が制限されています
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setIsBackupExportModalOpen(false);
+                  setBackupDataString("");
+                }}
+                style={{ background: "none", color: "var(--text-secondary)", border: "none", cursor: "pointer" }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div
+              style={{
+                fontSize: "13px",
+                color: "var(--text-secondary)",
+                lineHeight: 1.6,
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              <p>
+                現在ご利用のブラウザ（LINE内ブラウザや安心フィルターの独自ブラウザなど）では、ファイルのダウンロード機能が制限されているため、直接バックアップファイルを保存できません。
+              </p>
+
+              <div
+                style={{
+                  backgroundColor: "var(--bg-primary)",
+                  padding: "14px",
+                  borderRadius: "var(--border-radius-md)",
+                  border: "1px solid var(--border-color)",
+                }}
+              >
+                <h4 style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "8px", fontSize: "13px" }}>
+                  対策1：SafariまたはChromeで開く（推奨）
+                </h4>
+                <p style={{ fontSize: "12px", marginBottom: "12px" }}>
+                  SafariやGoogle Chromeから本サイトを開き直していただくことで、通常通りファイルをダウンロードできます。
+                </p>
+
+                <h4 style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "8px", fontSize: "13px" }}>
+                  対策2：データを直接コピーして保存する
+                </h4>
+                <p style={{ fontSize: "12px", marginBottom: "8px" }}>
+                  以下のバックアップ用テキスト（JSON）をすべてコピーし、メモ帳アプリ等に貼り付けて保存してください。復元する際はこのテキストを貼り付けます。
+                </p>
+                <textarea
+                  readOnly
+                  value={backupDataString}
+                  onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+                  style={{
+                    width: "100%",
+                    height: "120px",
+                    backgroundColor: "var(--bg-secondary)",
+                    color: "var(--text-secondary)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "var(--border-radius-md)",
+                    padding: "8px",
+                    fontSize: "11px",
+                    fontFamily: "monospace",
+                    resize: "none",
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(backupDataString);
+                  alert("バックアップデータをコピーしました！メモ帳などに貼り付けて保存してください。");
+                }}
+                style={{
+                  flex: 1,
+                  backgroundColor: "var(--bg-primary)",
+                  border: "1px solid var(--border-color)",
+                  color: "var(--text-primary)",
+                  padding: "12px",
+                  borderRadius: "var(--border-radius-md)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                }}
+              >
+                <Copy size={14} /> データをコピーする
+              </button>
+              <button
+                onClick={() => {
+                  setIsBackupExportModalOpen(false);
+                  setBackupDataString("");
+                }}
                 style={{
                   flex: 1,
                   backgroundColor: "var(--color-sage)",
