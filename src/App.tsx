@@ -13,6 +13,7 @@ import {
   Info,
   ChevronLeft,
   ChevronDown,
+  AlertTriangle,
 } from "lucide-react";
 import { CATEGORIES, PAYMENT_METHODS } from "./types";
 import type { Trip, Expense, CategoryType, PaymentMethodType } from "./types";
@@ -40,6 +41,7 @@ export default function App() {
   // Modal States
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
+  const [isPrintWarningModalOpen, setIsPrintWarningModalOpen] = useState(false);
 
   // Calendar view states for Trip Modal Date Range picker
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
@@ -222,6 +224,58 @@ export default function App() {
       setCalendarYear(calendarYear + 1);
     } else {
       setCalendarMonth(calendarMonth + 1);
+    }
+  };
+
+  // WebView / App-in browser detection (LINE, Yahoo, Anshin-Filter, etc.)
+  const isWebView = () => {
+    if (typeof window === "undefined" || !window.navigator) return false;
+    const ua = window.navigator.userAgent.toLowerCase();
+    
+    // LINE
+    if (ua.includes("line")) return true;
+    
+    // Anshin Filter / i-Filter / Soliton
+    if (
+      ua.includes("i-filter") ||
+      ua.includes("digitalarts") ||
+      ua.includes("soliton") ||
+      ua.includes("smartsurfer")
+    ) {
+      return true;
+    }
+    
+    // iOS WebView detection
+    const isIOS = /ipad|iphone|ipod/.test(ua);
+    if (isIOS) {
+      const hasSafari = ua.includes("safari");
+      const hasChrome = ua.includes("crios");
+      const hasFirefox = ua.includes("fxios");
+      if (!hasSafari && !hasChrome && !hasFirefox) {
+        return true;
+      }
+    }
+    
+    // Android WebView detection
+    const isAndroid = ua.includes("android");
+    if (isAndroid) {
+      if (ua.includes("wv") || ua.includes("version/4.0")) {
+        return true;
+      }
+    }
+    
+    if (typeof window.print !== "function") {
+      return true;
+    }
+    
+    return false;
+  };
+
+  const handlePrint = () => {
+    if (isWebView()) {
+      setIsPrintWarningModalOpen(true);
+    } else {
+      window.print();
     }
   };
 
@@ -864,7 +918,7 @@ export default function App() {
                   <Edit size={12} /> 編集
                 </button>
                 <button
-                  onClick={() => window.print()}
+                  onClick={handlePrint}
                   style={{
                     backgroundColor: "var(--color-sage-light)",
                     color: "var(--color-sage-dark)",
@@ -2613,6 +2667,149 @@ export default function App() {
                 データはすべてお使いのスマートフォンのブラウザ内 (localStorage)
                 にのみ保存されます。アプリ外に送信されることはありません。
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== MODAL: PRINT WARNING ==================== */}
+      {isPrintWarningModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(43, 58, 54, 0.4)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 110,
+            animation: "fadeIn 0.2s ease",
+            padding: "20px",
+          }}
+          onClick={() => setIsPrintWarningModalOpen(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "var(--bg-secondary)",
+              width: "100%",
+              maxWidth: "440px",
+              borderRadius: "var(--border-radius-lg)",
+              padding: "24px 20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "18px",
+              boxShadow: "var(--shadow-lg)",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              animation: "slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+              }}
+            >
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <AlertTriangle size={24} style={{ color: "var(--color-terracotta)" }} />
+                <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>
+                  PDF出力が制限されています
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsPrintWarningModalOpen(false)}
+                style={{ background: "none", color: "var(--text-secondary)", border: "none", cursor: "pointer" }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div
+              style={{
+                fontSize: "13px",
+                color: "var(--text-secondary)",
+                lineHeight: 1.6,
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              <p>
+                現在ご利用のブラウザ（LINE内ブラウザや安心フィルターの独自ブラウザなど）では、アプリ側の機能制限により印刷機能（PDF出力）が動作しません。
+              </p>
+              
+              <div
+                style={{
+                  backgroundColor: "var(--bg-primary)",
+                  padding: "14px",
+                  borderRadius: "var(--border-radius-md)",
+                  border: "1px solid var(--border-color)",
+                }}
+              >
+                <h4 style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "8px", fontSize: "13px" }}>
+                  解決方法
+                </h4>
+                <p style={{ marginBottom: "8px" }}>
+                  このサイトを <strong>Safari</strong>（iPhone）または <strong>Google Chrome</strong>（Android）で開いてから、PDF出力を実行してください。
+                </p>
+                
+                <h5 style={{ fontWeight: 600, color: "var(--text-primary)", marginTop: "12px", marginBottom: "4px", fontSize: "12px" }}>
+                  ■ LINEで開いている場合
+                </h5>
+                <p style={{ fontSize: "12px" }}>
+                  画面右上（または右下）のメニュー（「︙」や「︀」などのアイコン）をタップし、<strong>「デフォルトのブラウザで開く」</strong>または<strong>「Safariで開く」</strong>を選択してください。
+                </p>
+                
+                <h5 style={{ fontWeight: 600, color: "var(--text-primary)", marginTop: "12px", marginBottom: "4px", fontSize: "12px" }}>
+                  ■ 安心フィルターで開いている場合
+                </h5>
+                <p style={{ fontSize: "12px" }}>
+                  安心フィルターアプリ自体の制限により外部ブラウザが起動できない場合があります。その場合は、このページのURLをコピーし、ホーム画面から直接 <strong>Safari</strong> または <strong>Chrome</strong> を開いてURLを貼り付けてアクセスしてください。
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("URLをコピーしました！SafariやChromeなどのブラウザに貼り付けて開いてください。");
+                }}
+                style={{
+                  flex: 1,
+                  backgroundColor: "var(--bg-primary)",
+                  border: "1px solid var(--border-color)",
+                  color: "var(--text-primary)",
+                  padding: "12px",
+                  borderRadius: "var(--border-radius-md)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                URLをコピーする
+              </button>
+              <button
+                onClick={() => setIsPrintWarningModalOpen(false)}
+                style={{
+                  flex: 1,
+                  backgroundColor: "var(--color-sage)",
+                  color: "white",
+                  padding: "12px",
+                  borderRadius: "var(--border-radius-md)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  border: "none",
+                }}
+              >
+                閉じる
+              </button>
             </div>
           </div>
         </div>
