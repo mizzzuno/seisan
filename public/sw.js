@@ -48,12 +48,11 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // If we get a valid response, clone it and save to cache
-        if (response && response.status === 200 && response.type === 'basic') {
+        // If we get a valid response for a static resource, clone it and save to cache
+        const destination = event.request.destination;
+        if (['document', 'script', 'style', 'image', 'font', 'manifest'].includes(destination) && response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         }
         return response;
       })
