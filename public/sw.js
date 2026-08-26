@@ -63,10 +63,11 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          // If not in cache and requesting a page, return the index.html/root
-          if (event.request.headers.get('accept').includes('text/html')) {
-            return caches.match('/');
+          const accept = event.request.headers.get('accept') || '';
+          if (accept.includes('text/html')) {
+            return caches.match('/').then((res) => res || new Response('Offline', { status: 503 }));
           }
+          return new Response('Offline', { status: 503 });
         });
       })
   );
