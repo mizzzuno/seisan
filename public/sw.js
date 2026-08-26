@@ -52,7 +52,9 @@ self.addEventListener('fetch', (event) => {
         const destination = event.request.destination;
         if (['document', 'script', 'style', 'image', 'font', 'manifest'].includes(destination) && response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          event.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache))
+          );
         }
         return response;
       })
